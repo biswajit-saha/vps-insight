@@ -1,0 +1,20 @@
+name = "vps-insight-prod"
+
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Enable Workers KV
+kv_namespaces = [
+  { binding = "VPS_KV", id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID" }
+]
+
+# Optional: keep logs clean and predictable
+[vars]
+ENV = "production"
+
+# No routes needed (uses workers.dev by default)
+# Add routes here only if you bind a custom domain
+#
+# routes = [
+#   { pattern = "monitor.example.com/*", zone_name = "example.com" }
+# ]

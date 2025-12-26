@@ -1,0 +1,22 @@
+[Unit]
+Description=VPS Insight Agent (one-shot)
+Documentation=https://github.com/biswajit-saha/vps-insight
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+
+ExecStart=/opt/vps-insight/vps-insight-agent.sh
+EnvironmentFile=/etc/vps-insight/config.env
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+Nice=10
+CPUQuota=5%
+
+[Install]
+WantedBy=multi-user.target

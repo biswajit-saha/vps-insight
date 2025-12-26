@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <title>VPS Monitor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name='api-base' content="">
+
+  <script>
+    (function () {
+      const meta = document.querySelector('meta[name="api-base"]');
+      if (!meta) return;
+
+      if (!meta.content) {
+        meta.content = location.origin;
+      }
+    })();
+  </script>
+  <script>
+    (function () {
+        const savedTheme = localStorage.getItem("vps-insight-theme");
+        if (savedTheme === "dark" || savedTheme === "light") {
+        document.documentElement.dataset.theme = savedTheme;
+        } else {
+        document.documentElement.dataset.theme = "light";
+        }
+    })();
+  </script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="title"><h1 id="display-name">VPS Monitor</h1></div>
+      <div class="host" id="host-name">gbj-prod-1</div>
+      <div class="status">
+        <span class="dot"></span>
+        <span id="status-text">Online · updated 10s ago</span>
+      </div>
+    </div>
+
+    <div class="capacity">
+      <h4>CAPACITY</h4>
+      <div class="capacity-row"><span>CPU</span><span id="cap-cpu">–</span></div>
+      <div class="capacity-row"><span>RAM</span><span id="cap-ram">–</span></div>
+      <div class="capacity-row"><span>Disk</span><span id="cap-disk">–</span></div>
+      <div class="capacity-row" id="cap-swap-row" hidden>
+        <span>Swap</span><span id="cap-swap">–</span>
+      </div>
+      <div class="capacity-row"><span>Uptime</span><span id="cap-uptime">–</span></div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics">
+
+    <div class="card">
+      <div>
+        <h3>CPU USAGE</h3>
+        <div class="value" id="cpu-value">–%</div>
+        <div class="sub" id="cpu-sub">Idle – · IOwait –</div>
+      </div>
+      <div class="ring" id="cpu-ring" style="--value:0;--color:var(--cpu)"></div>
+    </div>
+
+    <div class="card">
+      <div>
+        <h3>MEMORY USAGE</h3>
+        <div class="value" id="mem-value">–%</div>
+        <div class="sub" id="mem-sub">Cached – · Buffers –</div>
+      </div>
+      <div class="ring" id="mem-ring" style="--value:0;--color:var(--mem)"></div>
+    </div>
+
+    <div class="card">
+      <div>
+        <h3>DISK USAGE</h3>
+        <div class="value" id="disk-value">–%</div>
+        <div class="sub" id="disk-sub">Free –</div>
+      </div>
+      <div class="ring" id="disk-ring" style="--value:0;--color:var(--disk)"></div>
+    </div>
+
+    <div class="card">
+      <div>
+        <h3>LOAD AVERAGE</h3>
+        <div class="value" id="load-value">–</div>
+        <div class="sub" id="load-sub">5m – · 15m –</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TIME FILTERS -->
+  <div class="filters">
+    <div class="filter active" data-range="1h">1H</div>
+    <div class="filter" data-range="6h">6H</div>
+    <div class="filter" data-range="1d">1D</div>
+    <div class="filter" data-range="1w">1W</div>
+    <div class="filter" data-range="1m">1M</div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts">
+    <div class="chart-card">
+      <div class="chart-title">CPU Usage (%)</div>
+      <canvas id="chart-cpu"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Memory Usage (%)</div>
+      <canvas id="chart-mem"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Load Average (1m)</div>
+      <canvas id="chart-load"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Disk Usage (%)</div>
+      <canvas id="chart-disk"></canvas>
+    </div>
+  </div>
+
+  <!-- DATA INFO -->
+  <div class="data-info">
+    Data resolution: <strong>10s</strong> ·
+    Last aggregated <span id="agg-age">~–s ago</span>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>Minimal, open-source VPS monitoring</span>
+
+    <div class="toggle" id="theme-toggle">
+      <!-- Sun -->
+      <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z"></path></svg>
+      <!-- Moon -->
+      <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 7C10 10.87 13.13 14 17 14C18.96 14 20.73 13.2 22 11.9C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C12.03 2 12.07 2 12.1 2C10.8 3.27 10 5.04 10 7Z"/>
+      </svg>
+    </div>
+  </footer>
+
+</div>
+
+<script type="module" src="assets/js/ui.js"></script>
+</body>
+</html>
