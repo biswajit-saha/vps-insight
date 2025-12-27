@@ -37,14 +37,16 @@ UPTIME_SEC=$(awk '{print int($1)}' /proc/uptime)
 PAYLOAD=$(cat <<JSON
 {
   "ts": $TS,
-  "cpu": $CPU_JSON,
-  "memory": $MEM_JSON,
-  "disk": $DISK_JSON,
-  "load": $LOAD_JSON,
   "uptime": $UPTIME_SEC
+  $CPU_JSON,
+  $MEM_JSON,
+  $DISK_JSON,
+  $LOAD_JSON,
 }
 JSON
 )
+
+
 
 # -----------------------------
 # Send to Worker
