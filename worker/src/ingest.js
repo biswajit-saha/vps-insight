@@ -1,4 +1,5 @@
 import { corsHeaders } from "./cors";
+import { aggregate } from "./aggregate";
 
 export async function handleIngest(request, env) {
   try {
@@ -42,14 +43,19 @@ export async function handleIngest(request, env) {
     // Detect payload type
     // -----------------------------
     let key = "latest";
+    const isMeta = "cpu_cores" in payload;
 
-    // Heuristic: static meta always has cpu_cores
-    if ("cpu_cores" in payload) {
+    if (isMeta) {
       key = "meta";
     }
 
-    // Optional: attach server-side timestamp
-    payload._ts = Date.now();
+    // -----------------------------
+    // Attach server timestamp
+    // -----------------------------
+    // metrics already have ts from agent — trust it
+    if (!payload.ts) {
+      payload.ts = Math.floor(Date.now() / 1000);
+    }
 
     // -----------------------------
     // Store in KV
@@ -57,10 +63,21 @@ export async function handleIngest(request, env) {
     await env.VPS_KV.put(key, JSON.stringify(payload));
 
     // -----------------------------
+    // Aggregate metrics ONLY
+    // -----------------------------
+    if (!isMeta) {
+      await aggregate(env, payload);
+    }
+
+    // -----------------------------
     // Success
     // -----------------------------
     return new Response(
-      JSON.stringify({ ok: true, stored_as: key }),
+      JSON.stringify({
+        ok: true,
+        stored_as: key,
+        aggregated: !isMeta
+      }),
       {
         status: 200,
         headers: {
