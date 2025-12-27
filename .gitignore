@@ -1,16 +1,47 @@
-api.js:17  GET http://172.24.170.211:8080/meta 404 (File not found)
-apiFetch @ api.js:17
-fetchMeta @ api.js:34
-renderMeta @ ui.js:56
-initUI @ ui.js:143
-(anonymous) @ ui.js:154
-api.js:22 Uncaught (in promise) Error: API /meta failed (404)
-    at apiFetch (api.js:22:11)
-    at async renderMeta (ui.js:56:16)
-    at async initUI (ui.js:143:3)
-apiFetch @ api.js:22
-await in apiFetch
-fetchMeta @ api.js:34
-renderMeta @ ui.js:56
-initUI @ ui.js:143
-(anonymous) @ ui.js:154
+# -----------------------------
+# OS / Editor
+# -----------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# -----------------------------
+# Node / Wrangler
+# -----------------------------
+node_modules/
+.wrangler/
+.dev.vars
+
+# -----------------------------
+# Python / misc
+# -----------------------------
+__pycache__/
+*.pyc
+
+# -----------------------------
+# Logs / runtime
+# -----------------------------
+*.log
+*.pid
+
+# -----------------------------
+# Agent (runtime-generated)
+# -----------------------------
+/agent/config.env
+/agent/.env
+
+# -----------------------------
+# Frontend
+# -----------------------------
+# User-specific API config (optional)
+# Uncomment if you don't want it committed
+/frontend/config.json
+
+# -----------------------------
+# Build output (if added later)
+# -----------------------------
+dist/
+build/

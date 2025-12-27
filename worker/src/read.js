@@ -1,42 +1,32 @@
-import { withCache } from "./cache";
+import { corsHeaders } from "./cors";
 
 export async function handleRead(request, env) {
   const url = new URL(request.url);
-  const path = url.pathname;
 
-  if (path === "/api/meta") {
-    return withCache(
-      await env.VPS_KV.get("meta"),
-      86400
-    );
-  }
+  let data;
 
-  if (path === "/api/latest") {
-    return noStore(
-      await env.VPS_KV.get("latest")
-    );
-  }
-
-  if (path === "/api/metrics") {
+  if (url.pathname === "/meta") {
+    data = await env.VPS_INSIGHT_DATA.get("meta", { type: "json" });
+  } else if (url.pathname === "/latest") {
+    data = await env.VPS_INSIGHT_DATA.get("latest", { type: "json" });
+  } else if (url.pathname === "/metrics") {
     const range = url.searchParams.get("range") || "1h";
-    const key = `metrics:${range}`;
-
-    const ttl = range === "1h" ? 0 : 60;
-    const data = await env.VPS_KV.get(key);
-
-    return ttl === 0
-      ? noStore(data)
-      : withCache(data, ttl);
+    data = await env.VPS_INSIGHT_DATA.get(`metrics:${range}`, {
+      type: "json"
+    });
+  } else if (url.pathname === "/health") {
+    data = { ok: true, ts: Date.now() };
+  } else {
+    return new Response("Not found", {
+      status: 404,
+      headers: corsHeaders()
+    });
   }
 
-  return new Response("Not found", { status: 404 });
-}
-
-function noStore(data) {
-  return new Response(data || "[]", {
+  return new Response(JSON.stringify(data ?? {}), {
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": "no-store"
+      ...corsHeaders()
     }
   });
 }

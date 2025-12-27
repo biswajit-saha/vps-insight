@@ -1,20 +1,36 @@
 // ---------------------------------------------
-// VPS Insight — API Client
+// VPS Insight — API Client (config-driven)
 // ---------------------------------------------
 
-// Read API base from <meta name="api-base">
-const API_BASE = document
-  .querySelector('meta[name="api-base"]')
-  ?.getAttribute('content')
-  ?.replace(/\/$/, '');
+let API_BASE = null;
 
-if (!API_BASE) {
-  console.error("❌ Missing <meta name='api-base'> in HTML");
+// Load config.json once
+async function loadConfig() {
+  if (API_BASE) return API_BASE;
+
+  const res = await fetch("/config.json", {
+    cache: "no-store"
+  });
+
+  if (!res.ok) {
+    throw new Error("❌ Failed to load /config.json");
+  }
+
+  const cfg = await res.json();
+
+  if (!cfg.apiBase) {
+    throw new Error("❌ apiBase missing in config.json");
+  }
+
+  API_BASE = cfg.apiBase.replace(/\/$/, "");
+  return API_BASE;
 }
 
 // Generic fetch helper
 async function apiFetch(path) {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const base = await loadConfig();
+
+  const res = await fetch(`${base}${path}`, {
     cache: "no-store"
   });
 
@@ -45,7 +61,7 @@ export async function fetchMetrics(range) {
   return apiFetch(`/metrics?range=${range}`);
 }
 
-// Health check (optional)
+// Optional health check
 export async function fetchHealth() {
   return apiFetch("/health");
 }
