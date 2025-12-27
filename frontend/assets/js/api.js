@@ -1,36 +1,18 @@
 // ---------------------------------------------
-// VPS Insight — API Client (config-driven)
+// VPS Insight — API Client
 // ---------------------------------------------
 
-let API_BASE = null;
+const CONFIG = window.__CONFIG__ || {};
 
-// Load config.json once
-async function loadConfig() {
-  if (API_BASE) return API_BASE;
+const API_BASE = CONFIG.API_BASE?.replace(/\/$/, "");
 
-  const res = await fetch("/config.json", {
-    cache: "no-store"
-  });
-
-  if (!res.ok) {
-    throw new Error("❌ Failed to load /config.json");
-  }
-
-  const cfg = await res.json();
-
-  if (!cfg.apiBase) {
-    throw new Error("❌ apiBase missing in config.json");
-  }
-
-  API_BASE = cfg.apiBase.replace(/\/$/, "");
-  return API_BASE;
+if (!API_BASE) {
+  console.error("❌ API_BASE missing. Check Pages environment variables.");
 }
 
 // Generic fetch helper
 async function apiFetch(path) {
-  const base = await loadConfig();
-
-  const res = await fetch(`${base}${path}`, {
+  const res = await fetch(`${API_BASE}${path}`, {
     cache: "no-store"
   });
 
@@ -45,23 +27,18 @@ async function apiFetch(path) {
 // Endpoints
 // ---------------------------------------------
 
-// Static metadata
-export async function fetchMeta() {
+export function fetchMeta() {
   return apiFetch("/meta");
 }
 
-// Latest metrics (no cache)
-export async function fetchLatest() {
+export function fetchLatest() {
   return apiFetch("/latest");
 }
 
-// Time-range metrics
-// range: 1h | 6h | 1d | 1w | 1m
-export async function fetchMetrics(range) {
+export function fetchMetrics(range) {
   return apiFetch(`/metrics?range=${range}`);
 }
 
-// Optional health check
-export async function fetchHealth() {
+export function fetchHealth() {
   return apiFetch("/health");
 }
