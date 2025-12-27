@@ -26,6 +26,11 @@ if [[ -z "$WORKER_URL" || -z "$API_TOKEN" || -z "$VPS_ID" ]]; then
 fi
 
 # -----------------------------
+# Normalize WORKER_URL
+# -----------------------------
+WORKER_URL="${WORKER_URL%/}"
+
+# -----------------------------
 # Detect static system info
 # -----------------------------
 CPU_CORES=$(nproc)
