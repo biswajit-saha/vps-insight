@@ -2,5 +2,5 @@
 // Do NOT commit real values here
 
 window.__CONFIG__ = {
-  API_BASE: ""
+  API_BASE: "{{API_BASE}}"
 };
