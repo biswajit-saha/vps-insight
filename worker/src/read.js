@@ -1,5 +1,3 @@
-import { corsHeaders } from "./cors";
-
 export async function handleRead(request, env) {
   const url = new URL(request.url);
 
@@ -11,22 +9,15 @@ export async function handleRead(request, env) {
     data = await env.VPS_INSIGHT_DATA.get("latest", { type: "json" });
   } else if (url.pathname === "/metrics") {
     const range = url.searchParams.get("range") || "1h";
-    data = await env.VPS_INSIGHT_DATA.get(`metrics:${range}`, {
-      type: "json"
-    });
+    data = await env.VPS_INSIGHT_DATA.get(`metrics:${range}`, { type: "json" });
   } else if (url.pathname === "/health") {
     data = { ok: true, ts: Date.now() };
   } else {
-    return new Response("Not found", {
-      status: 404,
-      headers: corsHeaders()
-    });
+    return new Response("Not found", { status: 404 });
   }
 
   return new Response(JSON.stringify(data ?? {}), {
-    headers: {
-      "Content-Type": "application/json",
-      ...corsHeaders()
-    }
+    status: 200,
+    headers: { "Content-Type": "application/json" }
   });
 }

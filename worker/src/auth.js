@@ -1,5 +1,3 @@
-// worker/src/auth.js
-
 export function authorize(request, env) {
   const header = request.headers.get("Authorization");
 
@@ -21,14 +19,11 @@ export function authorize(request, env) {
 }
 
 function unauthorized(message) {
-  return new Response(
-    JSON.stringify({ error: message }),
-    {
-      status: 401,
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store"
-      }
+  return new Response(JSON.stringify({ error: message }), {
+    status: 401,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store"
     }
-  );
+  });
 }

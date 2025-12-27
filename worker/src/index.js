@@ -1,6 +1,6 @@
 import { handleIngest } from "./ingest";
 import { handleRead } from "./read";
-import { corsHeaders } from "./cors";
+import { corsHeaders, withCors } from "./cors";
 
 export default {
   async fetch(request, env, ctx) {
@@ -14,18 +14,26 @@ export default {
       });
     }
 
-    // --- Routing ---
-    if (url.pathname === "/ingest" && request.method === "POST") {
-      return handleIngest(request, env);
-    }
+    try {
+      // --- Routing ---
+      if (url.pathname === "/ingest" && request.method === "POST") {
+        const res = await handleIngest(request, env);
+        return withCors(res);
+      }
 
-    if (request.method === "GET") {
-      return handleRead(request, env);
-    }
+      if (request.method === "GET") {
+        const res = await handleRead(request, env);
+        return withCors(res);
+      }
 
-    return new Response("Not found", {
-      status: 404,
-      headers: corsHeaders()
-    });
+      return withCors(
+        new Response("Not found", { status: 404 })
+      );
+    } catch (err) {
+      // Ensure CORS headers even on errors
+      return withCors(
+        new Response(JSON.stringify({ error: err.message }), { status: 500 })
+      );
+    }
   }
 };
