@@ -64,7 +64,7 @@ JSON
 # -----------------------------
 echo "📡 Sending static server metadata..."
 
-curl -fsS -X POST "$WORKER_URL/meta" \
+curl -fsS -X POST "$WORKER_URL/ingest" \
   -H "Authorization: Bearer $API_TOKEN" \
   -H "Content-Type: application/json" \
   -d "$META_PAYLOAD" || {
