@@ -5,7 +5,7 @@ compatibility_date = "2024-01-01"
 
 # Enable Workers KV
 kv_namespaces = [
-  { binding = "VPS_KV", id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID" }
+  { binding = "VPS_KV", id = "fa14482641724edc880270577a48f90d" }
 ]
 
 # Optional: keep logs clean and predictable

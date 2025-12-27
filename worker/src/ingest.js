@@ -9,7 +9,7 @@ export async function handleIngest(request, env) {
 
   const payload = await request.json();
 
-  await env.VPS_INSIGHT_DATA.put("latest", JSON.stringify(payload));
+  await env.VPS_KV.put("latest", JSON.stringify(payload));
 
   return new Response("OK", { status: 200 });
 }
