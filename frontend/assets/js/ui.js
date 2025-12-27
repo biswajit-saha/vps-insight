@@ -83,32 +83,45 @@ async function renderLatest() {
   $("status-text").textContent =
     `Online · updated ${timeAgo(now - data.ts)}`;
 
-  // CPU
-  $("cpu-value").textContent = pct(data.cpu.used);
+  /* ---------------- CPU ---------------- */
+  // We cannot compute % used reliably from single snapshot idle jiffies,
+  // so show load-based approximation instead
+  const cpuUsed = Math.min(100, Math.round(data.load.l1 * 100));
+
+  $("cpu-value").textContent = pct(cpuUsed);
   $("cpu-sub").textContent =
-    `Idle ${data.cpu.idle}% · IOwait ${data.cpu.iowait}%`;
-  $("cpu-ring").style.setProperty("--value", data.cpu.used);
+    `Load ${data.load.l1.toFixed(2)} · IOwait ${data.cpu.iowait}`;
+  $("cpu-ring").style.setProperty("--value", cpuUsed);
 
-  // Memory
-  $("mem-value").textContent = pct(data.memory.used_pct);
+  /* ---------------- Memory ---------------- */
+  const memUsedKb =
+    data.memory.total_kb - data.memory.available_kb;
+
+  const memUsedPct =
+    Math.round((memUsedKb / data.memory.total_kb) * 100);
+
+  $("mem-value").textContent = pct(memUsedPct);
   $("mem-sub").textContent =
-    `Cached ${data.memory.cached_gb}G · Buffers ${data.memory.buffers_gb}G`;
-  $("mem-ring").style.setProperty("--value", data.memory.used_pct);
+    `Cached ${(data.memory.cached_kb / 1024 / 1024).toFixed(1)}G · Buffers ${(data.memory.buffers_kb / 1024 / 1024).toFixed(1)}G`;
+  $("mem-ring").style.setProperty("--value", memUsedPct);
 
-  // Disk
-  $("disk-value").textContent = pct(data.disk.used_pct);
-  $("disk-sub").textContent =
-    `Free ${gb(
-      ((100 - data.disk.used_pct) / 100) * data.disk.total_gb
-    )}`;
-  $("disk-ring").style.setProperty("--value", data.disk.used_pct);
+  /* ---------------- Disk ---------------- */
+  const diskUsedPct =
+    Math.round((data.disk.used_kb / data.disk.total_kb) * 100);
 
-  // Load
-  $("load-value").textContent = data.load["1m"].toFixed(2);
+  const diskFreeGb =
+    data.disk.available_kb / 1024 / 1024;
+
+  $("disk-value").textContent = pct(diskUsedPct);
+  $("disk-sub").textContent = `Free ${diskFreeGb.toFixed(1)} GB`;
+  $("disk-ring").style.setProperty("--value", diskUsedPct);
+
+  /* ---------------- Load ---------------- */
+  $("load-value").textContent = data.load.l1.toFixed(2);
   $("load-sub").textContent =
-    `5m ${data.load["5m"]} · 15m ${data.load["15m"]}`;
+    `5m ${data.load.l5.toFixed(2)} · 15m ${data.load.l15.toFixed(2)}`;
 
-  // Aggregation age
+  /* ---------------- Aggregation age ---------------- */
   $("agg-age").textContent = `~${timeAgo(now - data.ts)}`;
 }
 
