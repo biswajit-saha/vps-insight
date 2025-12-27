@@ -8,7 +8,7 @@ Wants=network-online.target
 Type=oneshot
 
 ExecStart=/opt/vps-insight/vps-insight-agent.sh
-EnvironmentFile=/etc/vps-insight/config.env
+EnvironmentFile=/opt/vps-insight/config.env
 
 NoNewPrivileges=true
 PrivateTmp=true
