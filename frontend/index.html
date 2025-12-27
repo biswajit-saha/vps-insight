@@ -4,18 +4,7 @@
   <meta charset="utf-8">
   <title>VPS Monitor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name='api-base' content="">
 
-  <script>
-    (function () {
-      const meta = document.querySelector('meta[name="api-base"]');
-      if (!meta) return;
-
-      if (!meta.content) {
-        meta.content = location.origin;
-      }
-    })();
-  </script>
   <script>
     (function () {
         const savedTheme = localStorage.getItem("vps-insight-theme");
